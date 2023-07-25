@@ -2,6 +2,7 @@ import requests
 from terminaltables import AsciiTable
 import os
 from dotenv import load_dotenv
+import argparse
 
 
 def get_city_id(url, user_agent, city_name):
@@ -111,6 +112,15 @@ def print_statistics_table(average_salaries, site_name, city):
 
 if __name__ == "__main__":
     load_dotenv()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--city',
+        '-d', type=int,
+        required=True,
+        help='Город для вакансий'
+    )
+    args = parser.parse_args()
+    city = args.download_count
     superjob_head = 'X-Api-App-Id'
     hh_head = "User-Agent"
     hh_api_key = "api-test-agent"
@@ -118,7 +128,6 @@ if __name__ == "__main__":
     programming_languages = ['Python', 'JavaScript', 'Java', 'C++', 'Ruby']
     superjob_url = 'https://api.superjob.ru/2.0/'
     hh_url = "https://api.hh.ru/"
-    city = 'Москва'
     average_salaries = calculate_average_salary(
         superjob_url,
         superjob_head,

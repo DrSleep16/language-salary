@@ -1,5 +1,7 @@
 import requests
 from terminaltables import AsciiTable
+import os
+from dotenv import load_dotenv
 
 
 def get_city_id(url, user_agent, city_name):
@@ -108,10 +110,11 @@ def print_statistics_table(average_salaries, site_name, city):
 
 
 if __name__ == "__main__":
+    load_dotenv()
     superjob_head = 'X-Api-App-Id'
-    superjob_api_key = 'v3.h.4502279.c12b92c0892975c52a206c0f584f28f21b7f264f.731d360de1baf04efa64541496e494b3b7c6cfa0'
     hh_head = "User-Agent"
     hh_api_key = "api-test-agent"
+    superjob_api_key = os.getenv('SUPERJOB_API_KEY')
     programming_languages = ['Python', 'JavaScript', 'Java', 'C++', 'Ruby']
     superjob_url = 'https://api.superjob.ru/2.0/'
     hh_url = "https://api.hh.ru/"
@@ -122,13 +125,23 @@ if __name__ == "__main__":
         superjob_api_key,
         programming_languages,
         city,
-        site_name='SuperJob')
-    print_statistics_table(average_salaries, site_name='SuperJob', city=city)
+        site_name='SuperJob'
+    )
+    print_statistics_table(
+        average_salaries,
+        site_name='SuperJob',
+        city=city
+    )
     average_salaries = calculate_average_salary(
         hh_url,
         hh_head,
         hh_api_key,
         programming_languages,
         city,
-        site_name='HeadHunter')
-    print_statistics_table(average_salaries, site_name='HeadHunter', city=city)
+        site_name='HeadHunter'
+    )
+    print_statistics_table(
+        average_salaries,
+        site_name='HeadHunter',
+        city=city
+    )

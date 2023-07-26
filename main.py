@@ -22,9 +22,7 @@ def get_city_id(url, user_agent, city_name):
     return city_id
 
 
-def get_vacancies(url, head, api_key, language, city, site_name):
-    base_url = url
-    headers = {head: api_key}
+def get_params(base_url, site_name, language, city):
     if site_name == 'HeadHunter':
         city_id = get_city_id(base_url, "api-test-agent", city_name=city)
         params = {
@@ -40,17 +38,27 @@ def get_vacancies(url, head, api_key, language, city, site_name):
         }
     else:
         params = {}
-    base_url += 'vacancies/'
-    response = requests.get(base_url, headers=headers, params=params)
-    response.raise_for_status()
-    vacancies_data = response.json()
+    return params
+
+
+def get_vac_items(site_name, vacancies_data):
     if site_name == 'SuperJob':
         return vacancies_data['objects']
     elif site_name == 'HeadHunter':
         return vacancies_data['items']
 
 
-def predict_salary(vacancy, site_name):
+def get_vacancies(url, head, api_key, language, city, site_name):
+    params = get_params(url, site_name, language, city)
+    headers = {head: api_key}
+    base_url = url + 'vacancies/'
+    response = requests.get(base_url, headers=headers, params=params)
+    response.raise_for_status()
+    vacancies_data = response.json()
+    return get_vac_items(site_name, vacancies_data)
+
+
+def get_salary_period(vacancy, site_name):
     if site_name == 'HeadHunter':
         salary = vacancy.get("salary")
         if not salary:
@@ -63,12 +71,19 @@ def predict_salary(vacancy, site_name):
     else:
         salary_from = None
         salary_to = None
-    if salary_from and salary_to:
-        return (salary_from + salary_to) // 2
-    elif salary_from:
-        return salary_from * 1.2
-    elif salary_to:
-        return salary_to * 0.8
+    return salary_from, salary_to
+
+
+def predict_salary(vacancy, site_name):
+    salary_period = get_salary_period(vacancy, site_name)
+    if salary_period is not None:
+        salary_from, salary_to = salary_period
+        if salary_from and salary_to:
+            return (salary_from + salary_to) // 2
+        elif salary_from:
+            return salary_from * 1.2
+        elif salary_to:
+            return salary_to * 0.8
     else:
         return None
 

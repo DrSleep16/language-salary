@@ -115,12 +115,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--city',
-        '-d', type=int,
-        required=True,
+        '-d',
+        type=str,
+        default='Москва',
         help='Город для вакансий'
     )
     args = parser.parse_args()
-    city = args.download_count
+    print(args)
+    city = args.city
     superjob_head = 'X-Api-App-Id'
     hh_head = "User-Agent"
     hh_api_key = "api-test-agent"

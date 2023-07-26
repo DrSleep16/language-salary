@@ -112,7 +112,7 @@ def print_statistics_table(average_salaries, site_name, city):
 
 if __name__ == "__main__":
     load_dotenv()
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='Город для вакансий')
     parser.add_argument(
         '--city',
         '-d',
@@ -121,7 +121,6 @@ if __name__ == "__main__":
         help='Город для вакансий'
     )
     args = parser.parse_args()
-    print(args)
     city = args.city
     superjob_head = 'X-Api-App-Id'
     hh_head = "User-Agent"

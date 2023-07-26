@@ -108,6 +108,12 @@ def calculate_average_salary(url, head, api_key, languages, city, site_name):
                 'average_salary': average_salary,
                 'vacancies_processed': vacancies_processed
             }
+        else:
+            average_salaries[language] = {
+                'vacancies_found': len(vacancies),
+                'average_salary': None,
+                'vacancies_processed': vacancies_processed
+            }
     return average_salaries
 
 

@@ -112,6 +112,7 @@ def print_statistics_table(average_salaries, site_name, city):
 
 if __name__ == "__main__":
     load_dotenv()
+
     parser = argparse.ArgumentParser(description='Город для вакансий')
     parser.add_argument(
         '--city',
@@ -121,14 +122,15 @@ if __name__ == "__main__":
         help='Город для вакансий'
     )
     args = parser.parse_args()
+
     city = args.city
     superjob_head = 'X-Api-App-Id'
     hh_head = "User-Agent"
     hh_api_key = "api-test-agent"
     superjob_api_key = os.getenv('SUPERJOB_API_KEY')
     programming_languages = ['Python', 'JavaScript', 'Java', 'C++', 'Ruby']
+
     superjob_url = 'https://api.superjob.ru/2.0/'
-    hh_url = "https://api.hh.ru/"
     average_salaries = calculate_average_salary(
         superjob_url,
         superjob_head,
@@ -142,6 +144,8 @@ if __name__ == "__main__":
         site_name='SuperJob',
         city=city
     )
+
+    hh_url = "https://api.hh.ru/"
     average_salaries = calculate_average_salary(
         hh_url,
         hh_head,

@@ -13,9 +13,9 @@ def get_city_id(url, user_agent, city_name):
     }
     response = requests.get(base_url, headers=headers, params=params)
     response.raise_for_status()
-    areas_data = response.json()
+    areas = response.json()
     city_id = None
-    for area in areas_data['items']:
+    for area in areas['items']:
         if area['text'] == city_name:
             city_id = area['id']
             break
@@ -41,11 +41,11 @@ def get_params(base_url, site_name, language, city):
     return params
 
 
-def get_vac_items(site_name, vacancies_data):
+def get_vac_items(site_name, vacancies):
     if site_name == 'SuperJob':
-        return vacancies_data['objects']
+        return vacancies['objects']
     elif site_name == 'HeadHunter':
-        return vacancies_data['items']
+        return vacancies['items']
 
 
 def get_vacancies(url, head, api_key, language, city, site_name):
@@ -54,8 +54,8 @@ def get_vacancies(url, head, api_key, language, city, site_name):
     base_url = url + 'vacancies/'
     response = requests.get(base_url, headers=headers, params=params)
     response.raise_for_status()
-    vacancies_data = response.json()
-    return get_vac_items(site_name, vacancies_data)
+    vacancies = response.json()
+    return get_vac_items(site_name, vacancies)
 
 
 def get_salary_period(vacancy, site_name):
@@ -113,15 +113,15 @@ def calculate_average_salary(url, head, api_key, languages, city, site_name):
 
 def print_statistics_table(average_salaries, site_name, city):
     headers = ["Язык программирования", "Вакансий найдено", "Вакансий обработано", "Средняя зарплата"]
-    table_data = [headers]
-    for language, data in average_salaries.items():
-        table_data.append([
+    table = [headers]
+    for language, salary in average_salaries.items():
+        table.append([
             language,
-            data['vacancies_found'],
-            data['vacancies_processed'],
-            data['average_salary']
+            salary['vacancies_found'],
+            salary['vacancies_processed'],
+            salary['average_salary']
         ])
-    table = AsciiTable(table_data, title=f'{site_name} {city}')
+    table = AsciiTable(table, title=f'{site_name} {city}')
     print(table.table)
 
 

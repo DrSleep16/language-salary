@@ -104,16 +104,19 @@ def get_sj_period(vacancy):
 
 
 def calculate_average_salary(salary_period):
-    if salary_period is not None:
-        salary_from, salary_to = salary_period
-        if salary_from and salary_to:
-            return (salary_from + salary_to) // 2
-        elif salary_from:
-            return salary_from * 1.2
-        elif salary_to:
-            return salary_to * 0.8
-    else:
+    if salary_period is None:
         return None
+
+    salary_from, salary_to = salary_period
+
+    if salary_from and salary_to:
+        return (salary_from + salary_to) // 2
+
+    if salary_from:
+        return salary_from * 1.2
+
+    if salary_to:
+        return salary_to * 0.8
 
 
 def predict_hh_salary(vacancy):

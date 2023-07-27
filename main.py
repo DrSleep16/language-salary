@@ -142,19 +142,16 @@ def calculate_hh_average_salary(languages, city):
             if salary:
                 salaries.append(salary)
                 vacancies_processed += 1
+
+        average_salaries[language] = {
+            'vacancies_found': len(vacancies),
+            'average_salary': None,
+            'vacancies_processed': vacancies_processed
+        }
+
         if salaries:
-            average_salary = sum(salaries) // len(salaries)
-            average_salaries[language] = {
-                'vacancies_found': len(vacancies),
-                'average_salary': average_salary,
-                'vacancies_processed': vacancies_processed
-            }
-        else:
-            average_salaries[language] = {
-                'vacancies_found': len(vacancies),
-                'average_salary': None,
-                'vacancies_processed': vacancies_processed
-            }
+            average_salaries[language]['average_salary'] = sum(salaries) // len(salaries)
+
     return average_salaries
 
 

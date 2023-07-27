@@ -136,17 +136,15 @@ def calculate_hh_average_salary(languages, city):
         if not vacancies:
             continue
         salaries = []
-        vacancies_processed = 0
         for vacancy in vacancies:
             salary = predict_hh_salary(vacancy)
             if salary:
                 salaries.append(salary)
-                vacancies_processed += 1
 
         average_salaries[language] = {
             'vacancies_found': len(vacancies),
             'average_salary': None,
-            'vacancies_processed': vacancies_processed
+            'vacancies_processed': len(salaries)
         }
 
         if salaries:
@@ -166,19 +164,16 @@ def calculate_sj_average_salary(api_key, languages, city):
             salary = predict_sj_salary(vacancy)
             if salary:
                 salaries.append(salary)
+
+        average_salaries[language] = {
+            'vacancies_found': len(vacancies),
+            'average_salary': None,
+            'vacancies_processed': len(salaries)
+        }
+
         if salaries:
-            average_salary = sum(salaries) // len(salaries)
-            average_salaries[language] = {
-                'vacancies_found': len(vacancies),
-                'average_salary': average_salary,
-                'vacancies_processed': len(salaries)
-            }
-        else:
-            average_salaries[language] = {
-                'vacancies_found': len(vacancies),
-                'average_salary': None,
-                'vacancies_processed': len(salaries)
-            }
+            average_salaries[language]['average_salary'] = sum(salaries) // len(salaries)
+
     return average_salaries
 
 

@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 import argparse
 
 
-def get_city_id(user_agent, city_name):
+def get_city_id(city_name):
     base_url = 'https://api.hh.ru/suggests/areas'
-    headers = {'User-Agent': user_agent}
+    headers = {'User-Agent': 'api-test-agent'}
     params = {
         'text': city_name
     }
@@ -23,7 +23,7 @@ def get_city_id(user_agent, city_name):
 
 
 def get_hh_params(language, city):
-    city_id = get_city_id("api-test-agent", city_name=city)
+    city_id = get_city_id(city_name=city)
     params = {
         "area": city_id,
         "text": language,
@@ -41,9 +41,9 @@ def get_sj_params(language, city):
     return params
 
 
-def get_hh_vacancies(head, api_key, language, city):
+def get_hh_vacancies(language, city):
     params = get_hh_params(language, city)
-    headers = {head: api_key}
+    headers = {"User-Agent": "api-test-agent"}
     base_url = 'https://api.hh.ru/vacancies/'
     all_vacancies = []
     page = 0
@@ -67,9 +67,9 @@ def get_hh_vacancies(head, api_key, language, city):
     return all_vacancies
 
 
-def get_sj_vacancies(head, api_key, language, city):
+def get_sj_vacancies(api_key, language, city):
     params = get_sj_params(language, city)
-    headers = {head: api_key}
+    headers = {'X-Api-App-Id': api_key}
     base_url = 'https://api.superjob.ru/2.0/vacancies/'
     response = requests.get(base_url, headers=headers, params=params)
     response.raise_for_status()
@@ -120,10 +120,10 @@ def predict_sj_salary(vacancy):
         return None
 
 
-def calculate_hh_average_salary(head, api_key, languages, city):
+def calculate_hh_average_salary(languages, city):
     average_salaries = {}
     for language in languages:
-        vacancies = get_hh_vacancies(head, api_key, language, city)
+        vacancies = get_hh_vacancies(language, city)
         if not vacancies:
             continue
         salaries = []
@@ -149,10 +149,10 @@ def calculate_hh_average_salary(head, api_key, languages, city):
     return average_salaries
 
 
-def calculate_sj_average_salary(head, api_key, languages, city):
+def calculate_sj_average_salary(api_key, languages, city):
     average_salaries = {}
     for language in languages:
-        vacancies = get_sj_vacancies(head, api_key, language, city)
+        vacancies = get_sj_vacancies(api_key, language, city)
         if not vacancies:
             continue
         salaries = []
@@ -206,14 +206,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     city = args.city
-    superjob_head = 'X-Api-App-Id'
-    hh_head = "User-Agent"
-    hh_api_key = "api-test-agent"
     superjob_api_key = os.getenv('SUPERJOB_API_KEY')
     programming_languages = ['Python', 'JavaScript', 'Java', 'C++', 'Ruby']
 
     average_salaries = calculate_sj_average_salary(
-        superjob_head,
         superjob_api_key,
         programming_languages,
         city,
@@ -225,8 +221,6 @@ if __name__ == "__main__":
     )
 
     average_salaries = calculate_hh_average_salary(
-        hh_head,
-        hh_api_key,
         programming_languages,
         city,
     )

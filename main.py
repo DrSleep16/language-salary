@@ -59,7 +59,8 @@ def get_hh_vacancies(language, city):
             break
 
         all_vacancies.extend(vacancies)
-        total_pages = int(response.headers.get('X-Pagination-Pages', 0))
+        # total_pages = int(response.headers.get('X-Pagination-Pages', 0))
+        total_pages = int(response.json().get('pages', 0))
         if page >= total_pages - 1:
             break
 
@@ -78,7 +79,6 @@ def get_sj_vacancies(api_key, language, city):
         response = requests.get(base_url, headers=headers, params=params)
         response.raise_for_status()
         vacancy = response.json()
-
         if not vacancy['objects']:
             break
 
@@ -201,6 +201,16 @@ if __name__ == "__main__":
     superjob_api_key = os.getenv('SUPERJOB_API_KEY')
     programming_languages = ['Python', 'JavaScript', 'Java', 'C++', 'Ruby']
 
+    hh_salaries_statistic = calculate_hh_salaries_statistic(
+        programming_languages,
+        my_city,
+    )
+    print_statistics_table(
+        hh_salaries_statistic,
+        site_name='HeadHunter',
+        city=my_city
+    )
+
     sj_salaries_statistic = calculate_sj_salaries_statistic(
         superjob_api_key,
         programming_languages,
@@ -209,15 +219,5 @@ if __name__ == "__main__":
     print_statistics_table(
         sj_salaries_statistic,
         site_name='SuperJob',
-        city=my_city
-    )
-
-    hh_salaries_statistic = calculate_hh_salaries_statistic(
-        programming_languages,
-        my_city,
-    )
-    print_statistics_table(
-        hh_salaries_statistic,
-        site_name='HeadHunter',
         city=my_city
     )

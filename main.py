@@ -22,27 +22,13 @@ def get_city_id(city_name):
     return city_id
 
 
-def get_hh_params(language, city):
+def get_hh_vacancies(language, city):
     city_id = get_city_id(city_name=city)
     params = {
         "area": city_id,
         "text": language,
         "per_page": 100
     }
-    return params
-
-
-def get_sj_params(language, city, page):
-    params = {
-            'keyword': language,
-            'town': city,
-            'page': page,
-        }
-    return params
-
-
-def get_hh_vacancies(language, city):
-    params = get_hh_params(language, city)
     headers = {"User-Agent": "api-test-agent"}
     base_url = 'https://api.hh.ru/vacancies/'
     all_vacancies = []
@@ -75,7 +61,11 @@ def get_sj_vacancies(api_key, language, city):
     page = 0
 
     while True:
-        params = get_sj_params(language, city, page)
+        params = {
+            'keyword': language,
+            'town': city,
+            'page': page,
+        }
         response = requests.get(base_url, headers=headers, params=params)
         response.raise_for_status()
         vacancy = response.json()
@@ -86,21 +76,6 @@ def get_sj_vacancies(api_key, language, city):
         page += 1
 
     return all_vacancies
-
-
-def get_hh_period(vacancy):
-    salary = vacancy.get("salary")
-    if not salary:
-        return None
-    salary_from = salary.get("from")
-    salary_to = salary.get("to")
-    return salary_from, salary_to
-
-
-def get_sj_period(vacancy):
-    salary_from = vacancy.get('payment_from')
-    salary_to = vacancy.get('payment_to')
-    return salary_from, salary_to
 
 
 def calculate_average_salary(salary_period):
@@ -120,12 +95,19 @@ def calculate_average_salary(salary_period):
 
 
 def predict_hh_salary(vacancy):
-    salary_period = get_hh_period(vacancy)
+    salary = vacancy.get("salary")
+    if not salary:
+        return None
+    salary_from = salary.get("from")
+    salary_to = salary.get("to")
+    salary_period = salary_from, salary_to
     return calculate_average_salary(salary_period)
 
 
 def predict_sj_salary(vacancy):
-    salary_period = get_sj_period(vacancy)
+    salary_from = vacancy.get('payment_from')
+    salary_to = vacancy.get('payment_to')
+    salary_period = salary_from, salary_to
     return calculate_average_salary(salary_period)
 
 

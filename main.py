@@ -45,10 +45,26 @@ def get_hh_vacancies(url, head, api_key, language, city):
     params = get_hh_params(url, language, city)
     headers = {head: api_key}
     base_url = url + 'vacancies/'
-    response = requests.get(base_url, headers=headers, params=params)
-    response.raise_for_status()
-    vacancies = response.json()
-    return vacancies['items']
+    all_vacancies = []
+    page = 0
+
+    while True:
+        page_params = params.copy()
+        page_params['page'] = page
+        response = requests.get(base_url, headers=headers, params=page_params)
+        response.raise_for_status()
+
+        vacancies = response.json().get('items', [])
+        if not vacancies:
+            break
+
+        all_vacancies.extend(vacancies)
+        total_pages = int(response.headers.get('X-Pagination-Pages', 0))
+        if page >= total_pages - 1:
+            break
+
+        page += 1
+    return all_vacancies
 
 
 def get_sj_vacancies(url, head, api_key, language, city):

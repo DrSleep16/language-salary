@@ -45,7 +45,6 @@ def get_hh_vacancies(language, city):
             break
 
         all_vacancies.extend(vacancies)
-        # total_pages = int(response.headers.get('X-Pagination-Pages', 0))
         total_pages = int(response.json().get('pages', 0))
         if page >= total_pages - 1:
             break

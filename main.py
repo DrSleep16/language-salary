@@ -22,60 +22,62 @@ def get_city_id(url, user_agent, city_name):
     return city_id
 
 
-def get_params(base_url, site_name, language, city):
-    if site_name == 'HeadHunter':
-        city_id = get_city_id(base_url, "api-test-agent", city_name=city)
-        params = {
-            "area": city_id,
-            "text": language,
-            "per_page": 100
-        }
-    elif site_name == 'SuperJob':
-        params = {
+def get_hh_params(base_url, language, city):
+    city_id = get_city_id(base_url, "api-test-agent", city_name=city)
+    params = {
+        "area": city_id,
+        "text": language,
+        "per_page": 100
+    }
+    return params
+
+
+def get_sj_params(language, city):
+    params = {
             'keyword': language,
             'town': city,
             'count': 100,
         }
-    else:
-        params = {}
     return params
 
 
-def get_vac_items(site_name, vacancies):
-    if site_name == 'SuperJob':
-        return vacancies['objects']
-    elif site_name == 'HeadHunter':
-        return vacancies['items']
-
-
-def get_vacancies(url, head, api_key, language, city, site_name):
-    params = get_params(url, site_name, language, city)
+def get_hh_vacancies(url, head, api_key, language, city):
+    params = get_hh_params(url, language, city)
     headers = {head: api_key}
     base_url = url + 'vacancies/'
     response = requests.get(base_url, headers=headers, params=params)
     response.raise_for_status()
     vacancies = response.json()
-    return get_vac_items(site_name, vacancies)
+    return vacancies['items']
 
 
-def get_salary_period(vacancy, site_name):
-    if site_name == 'HeadHunter':
-        salary = vacancy.get("salary")
-        if not salary:
-            return None
-        salary_from = salary.get("from")
-        salary_to = salary.get("to")
-    elif site_name == 'SuperJob':
-        salary_from = vacancy.get('payment_from')
-        salary_to = vacancy.get('payment_to')
-    else:
-        salary_from = None
-        salary_to = None
+def get_sj_vacancies(url, head, api_key, language, city):
+    params = get_sj_params(language, city)
+    headers = {head: api_key}
+    base_url = url + 'vacancies/'
+    response = requests.get(base_url, headers=headers, params=params)
+    response.raise_for_status()
+    vacancies = response.json()
+    return vacancies['objects']
+
+
+def get_hh_period(vacancy):
+    salary = vacancy.get("salary")
+    if not salary:
+        return None
+    salary_from = salary.get("from")
+    salary_to = salary.get("to")
     return salary_from, salary_to
 
 
-def predict_salary(vacancy, site_name):
-    salary_period = get_salary_period(vacancy, site_name)
+def get_sj_period(vacancy):
+    salary_from = vacancy.get('payment_from')
+    salary_to = vacancy.get('payment_to')
+    return salary_from, salary_to
+
+
+def predict_hh_salary(vacancy):
+    salary_period = get_hh_period(vacancy)
     if salary_period is not None:
         salary_from, salary_to = salary_period
         if salary_from and salary_to:
@@ -88,16 +90,59 @@ def predict_salary(vacancy, site_name):
         return None
 
 
-def calculate_average_salary(url, head, api_key, languages, city, site_name):
+def predict_sj_salary(vacancy):
+    salary_period = get_sj_period(vacancy)
+    if salary_period is not None:
+        salary_from, salary_to = salary_period
+        if salary_from and salary_to:
+            return (salary_from + salary_to) // 2
+        elif salary_from:
+            return salary_from * 1.2
+        elif salary_to:
+            return salary_to * 0.8
+    else:
+        return None
+
+
+def calculate_hh_average_salary(url, head, api_key, languages, city):
     average_salaries = {}
     for language in languages:
-        vacancies = get_vacancies(url, head, api_key, language, city, site_name)
+        vacancies = get_hh_vacancies(url, head, api_key, language, city)
         if not vacancies:
             continue
         salaries = []
         vacancies_processed = 0
         for vacancy in vacancies:
-            salary = predict_salary(vacancy, site_name)
+            salary = predict_hh_salary(vacancy)
+            if salary:
+                salaries.append(salary)
+                vacancies_processed += 1
+        if salaries:
+            average_salary = sum(salaries) // len(salaries)
+            average_salaries[language] = {
+                'vacancies_found': len(vacancies),
+                'average_salary': average_salary,
+                'vacancies_processed': vacancies_processed
+            }
+        else:
+            average_salaries[language] = {
+                'vacancies_found': len(vacancies),
+                'average_salary': None,
+                'vacancies_processed': vacancies_processed
+            }
+    return average_salaries
+
+
+def calculate_sj_average_salary(url, head, api_key, languages, city):
+    average_salaries = {}
+    for language in languages:
+        vacancies = get_sj_vacancies(url, head, api_key, language, city)
+        if not vacancies:
+            continue
+        salaries = []
+        vacancies_processed = 0
+        for vacancy in vacancies:
+            salary = predict_sj_salary(vacancy)
             if salary:
                 salaries.append(salary)
                 vacancies_processed += 1
@@ -152,13 +197,12 @@ if __name__ == "__main__":
     programming_languages = ['Python', 'JavaScript', 'Java', 'C++', 'Ruby']
 
     superjob_url = 'https://api.superjob.ru/2.0/'
-    average_salaries = calculate_average_salary(
+    average_salaries = calculate_sj_average_salary(
         superjob_url,
         superjob_head,
         superjob_api_key,
         programming_languages,
         city,
-        site_name='SuperJob'
     )
     print_statistics_table(
         average_salaries,
@@ -167,13 +211,12 @@ if __name__ == "__main__":
     )
 
     hh_url = "https://api.hh.ru/"
-    average_salaries = calculate_average_salary(
+    average_salaries = calculate_hh_average_salary(
         hh_url,
         hh_head,
         hh_api_key,
         programming_languages,
         city,
-        site_name='HeadHunter'
     )
     print_statistics_table(
         average_salaries,

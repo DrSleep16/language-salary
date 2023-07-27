@@ -129,8 +129,19 @@ def predict_sj_salary(vacancy):
     return calculate_average_salary(salary_period)
 
 
-def calculate_hh_average_salary(languages, city):
-    average_salaries = {}
+def get_salaries_statistic(language, vacancies, salaries):
+    salaries_statistic = {language: {
+        'vacancies_found': len(vacancies),
+        'average_salary': None,
+        'vacancies_processed': len(salaries)
+    }}
+    if salaries:
+        salaries_statistic[language]['average_salary'] = sum(salaries) // len(salaries)
+    return salaries_statistic[language]
+
+
+def calculate_hh_salaries_statistic(languages, city):
+    salaries_statistic = {}
     for language in languages:
         vacancies = get_hh_vacancies(language, city)
         if not vacancies:
@@ -140,21 +151,12 @@ def calculate_hh_average_salary(languages, city):
             salary = predict_hh_salary(vacancy)
             if salary:
                 salaries.append(salary)
-
-        average_salaries[language] = {
-            'vacancies_found': len(vacancies),
-            'average_salary': None,
-            'vacancies_processed': len(salaries)
-        }
-
-        if salaries:
-            average_salaries[language]['average_salary'] = sum(salaries) // len(salaries)
-
-    return average_salaries
+        salaries_statistic[language] = get_salaries_statistic(language, vacancies, salaries)
+    return salaries_statistic
 
 
-def calculate_sj_average_salary(api_key, languages, city):
-    average_salaries = {}
+def calculate_sj_salaries_statistic(api_key, languages, city):
+    salaries_statistic = {}
     for language in languages:
         vacancies = get_sj_vacancies(api_key, language, city)
         if not vacancies:
@@ -164,23 +166,14 @@ def calculate_sj_average_salary(api_key, languages, city):
             salary = predict_sj_salary(vacancy)
             if salary:
                 salaries.append(salary)
-
-        average_salaries[language] = {
-            'vacancies_found': len(vacancies),
-            'average_salary': None,
-            'vacancies_processed': len(salaries)
-        }
-
-        if salaries:
-            average_salaries[language]['average_salary'] = sum(salaries) // len(salaries)
-
-    return average_salaries
+        salaries_statistic[language] = get_salaries_statistic(language, vacancies, salaries)
+    return salaries_statistic
 
 
-def print_statistics_table(average_salaries, site_name, city):
+def print_statistics_table(salaries_statistic, site_name, city):
     headers = ["Язык программирования", "Вакансий найдено", "Вакансий обработано", "Средняя зарплата"]
     table = [headers]
-    for language, salary in average_salaries.items():
+    for language, salary in salaries_statistic.items():
         table.append([
             language,
             salary['vacancies_found'],
@@ -204,27 +197,27 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    city = args.city
+    my_city = args.city
     superjob_api_key = os.getenv('SUPERJOB_API_KEY')
     programming_languages = ['Python', 'JavaScript', 'Java', 'C++', 'Ruby']
 
-    average_salaries = calculate_sj_average_salary(
+    sj_salaries_statistic = calculate_sj_salaries_statistic(
         superjob_api_key,
         programming_languages,
-        city,
+        my_city,
     )
     print_statistics_table(
-        average_salaries,
+        sj_salaries_statistic,
         site_name='SuperJob',
-        city=city
+        city=my_city
     )
 
-    average_salaries = calculate_hh_average_salary(
+    hh_salaries_statistic = calculate_hh_salaries_statistic(
         programming_languages,
-        city,
+        my_city,
     )
     print_statistics_table(
-        average_salaries,
+        hh_salaries_statistic,
         site_name='HeadHunter',
-        city=city
+        city=my_city
     )

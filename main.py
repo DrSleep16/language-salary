@@ -32,11 +32,11 @@ def get_hh_params(language, city):
     return params
 
 
-def get_sj_params(language, city):
+def get_sj_params(language, city, page):
     params = {
             'keyword': language,
             'town': city,
-            'count': 100,
+            'page': page,
         }
     return params
 
@@ -68,13 +68,24 @@ def get_hh_vacancies(language, city):
 
 
 def get_sj_vacancies(api_key, language, city):
-    params = get_sj_params(language, city)
     headers = {'X-Api-App-Id': api_key}
     base_url = 'https://api.superjob.ru/2.0/vacancies/'
-    response = requests.get(base_url, headers=headers, params=params)
-    response.raise_for_status()
-    vacancies = response.json()
-    return vacancies['objects']
+    all_vacancies = []
+    page = 0
+
+    while True:
+        params = get_sj_params(language, city, page)
+        response = requests.get(base_url, headers=headers, params=params)
+        response.raise_for_status()
+        vacancy = response.json()
+
+        if not vacancy['objects']:
+            break
+
+        all_vacancies.extend(vacancy['objects'])
+        page += 1
+
+    return all_vacancies
 
 
 def get_hh_period(vacancy):

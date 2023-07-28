@@ -22,8 +22,7 @@ def get_city_id(city_name):
     return city_id
 
 
-def get_hh_vacancies(language, city):
-    city_id = get_city_id(city_name=city)
+def get_hh_vacancies(language, city_id):
     params = {
         "area": city_id,
         "text": language,
@@ -124,7 +123,8 @@ def get_salaries_statistic(language, vacancies, salaries):
 def calculate_hh_salaries_statistic(languages, city):
     salaries_statistic = {}
     for language in languages:
-        vacancies = get_hh_vacancies(language, city)
+        city_id = get_city_id(city)
+        vacancies = get_hh_vacancies(language, city_id)
         if not vacancies:
             continue
         salaries = []

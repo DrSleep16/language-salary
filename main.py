@@ -77,11 +77,9 @@ def get_sj_vacancies(api_key, language, city):
     return all_vacancies
 
 
-def calculate_average_salary(salary_period):
-    if not salary_period:
+def calculate_average_salary(salary_from, salary_to):
+    if not salary_from and not salary_to:
         return None
-
-    salary_from, salary_to = salary_period
 
     if salary_from and salary_to:
         return (salary_from + salary_to) // 2
@@ -99,15 +97,13 @@ def predict_hh_salary(vacancy):
         return None
     salary_from = salary.get("from")
     salary_to = salary.get("to")
-    salary_period = salary_from, salary_to
-    return calculate_average_salary(salary_period)
+    return calculate_average_salary(salary_from, salary_to)
 
 
 def predict_sj_salary(vacancy):
     salary_from = vacancy.get('payment_from')
     salary_to = vacancy.get('payment_to')
-    salary_period = salary_from, salary_to
-    return calculate_average_salary(salary_period)
+    return calculate_average_salary(salary_from, salary_to)
 
 
 def get_salaries_statistic(language, vacancies, salaries):

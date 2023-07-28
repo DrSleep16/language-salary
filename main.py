@@ -106,15 +106,15 @@ def predict_sj_salary(vacancy):
     return calculate_average_salary(salary_from, salary_to)
 
 
-def get_salaries_statistic(language, vacancies, salaries):
-    salaries_statistic = {language: {
+def get_salaries_statistic(vacancies, salaries):
+    salaries_statistic = {
         'vacancies_found': len(vacancies),
         'average_salary': None,
         'vacancies_processed': len(salaries)
-    }}
+    }
     if salaries:
-        salaries_statistic[language]['average_salary'] = sum(salaries) // len(salaries)
-    return salaries_statistic[language]
+        salaries_statistic['average_salary'] = sum(salaries) // len(salaries)
+    return salaries_statistic
 
 
 def calculate_hh_salaries_statistic(languages, city):
@@ -129,7 +129,7 @@ def calculate_hh_salaries_statistic(languages, city):
             salary = predict_hh_salary(vacancy)
             if salary:
                 salaries.append(salary)
-        salaries_statistic[language] = get_salaries_statistic(language, vacancies, salaries)
+        salaries_statistic[language] = get_salaries_statistic(vacancies, salaries)
     return salaries_statistic
 
 
@@ -144,7 +144,7 @@ def calculate_sj_salaries_statistic(api_key, languages, city):
             salary = predict_sj_salary(vacancy)
             if salary:
                 salaries.append(salary)
-        salaries_statistic[language] = get_salaries_statistic(language, vacancies, salaries)
+        salaries_statistic[language] = get_salaries_statistic(vacancies, salaries)
     return salaries_statistic
 
 

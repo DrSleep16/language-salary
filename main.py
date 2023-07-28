@@ -67,11 +67,11 @@ def get_sj_vacancies(api_key, language, city):
         }
         response = requests.get(base_url, headers=headers, params=params)
         response.raise_for_status()
-        vacancy = response.json()
-        if not vacancy['objects']:
+        vacancies = response.json()
+        if not vacancies['objects']:
             break
 
-        all_vacancies.extend(vacancy['objects'])
+        all_vacancies.extend(vacancies['objects'])
         page += 1
 
     return all_vacancies

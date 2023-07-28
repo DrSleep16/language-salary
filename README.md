@@ -23,7 +23,7 @@ SUPERJOB_API_KEY=YOUR_SUPERJOB_API_KEY
 2. Запустите скрипт с помощью команды:
 
 ```bash
-python script.py --city CITY
+python main.py --city CITY
 ```
 
 Замените `CITY` на название вашего города.

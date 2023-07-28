@@ -78,7 +78,7 @@ def get_sj_vacancies(api_key, language, city):
 
 
 def calculate_average_salary(salary_period):
-    if salary_period is None:
+    if not salary_period:
         return None
 
     salary_from, salary_to = salary_period

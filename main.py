@@ -175,27 +175,27 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    your_city = args.city
+    city = args.city
     superjob_api_key = os.getenv('SUPERJOB_API_KEY')
     programming_languages = ['Python', 'JavaScript', 'Java', 'C++', 'Ruby']
 
     hh_salaries_statistic = calculate_hh_salaries_statistic(
         programming_languages,
-        your_city,
+        city,
     )
     print_statistics_table(
         hh_salaries_statistic,
         site_name='HeadHunter',
-        city=your_city
+        city=city
     )
 
     sj_salaries_statistic = calculate_sj_salaries_statistic(
         superjob_api_key,
         programming_languages,
-        your_city,
+        city,
     )
     print_statistics_table(
         sj_salaries_statistic,
         site_name='SuperJob',
-        city=your_city
+        city=city
     )

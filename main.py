@@ -117,9 +117,8 @@ def get_salaries_statistic(vacancies, salaries):
     return salaries_statistic
 
 
-def calculate_hh_salaries_statistic(languages, city):
+def calculate_hh_salaries_statistic(languages, city_id):
     salaries_statistic = {}
-    city_id = get_city_id(city)
     for language in languages:
         vacancies = get_hh_vacancies(language, city_id)
         if not vacancies:
@@ -179,9 +178,10 @@ if __name__ == "__main__":
     superjob_api_key = os.getenv('SUPERJOB_API_KEY')
     programming_languages = ['Python', 'JavaScript', 'Java', 'C++', 'Ruby']
 
+    city_id = get_city_id(city)
     hh_salaries_statistic = calculate_hh_salaries_statistic(
         programming_languages,
-        city,
+        city_id,
     )
     print_statistics_table(
         hh_salaries_statistic,

@@ -119,8 +119,8 @@ def get_salaries_statistic(vacancies, salaries):
 
 def calculate_hh_salaries_statistic(languages, city):
     salaries_statistic = {}
+    city_id = get_city_id(city)
     for language in languages:
-        city_id = get_city_id(city)
         vacancies = get_hh_vacancies(language, city_id)
         if not vacancies:
             continue

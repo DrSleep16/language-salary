@@ -38,13 +38,13 @@ def get_hh_vacancies(language, city_id):
         page_params['page'] = page
         response = requests.get(base_url, headers=headers, params=page_params)
         response.raise_for_status()
-        json_response = response.json()
-        vacancies = json_response.get('items', [])
+        result = response.json()
+        vacancies = result.get('items', [])
         if not vacancies:
             break
 
         all_vacancies.extend(vacancies)
-        total_pages = int(json_response.get('pages', 0))
+        total_pages = int(result.get('pages', 0))
 
         if page >= total_pages - 1:
             break
